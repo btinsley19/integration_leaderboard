@@ -1,0 +1,22 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# SQLite DB (optional: remove this line if you want to commit the DB)
+# On Streamlit Cloud the filesystem is ephemeral anyway, so data resets on redeploy.
+leaderboard.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# IDE / OS
+.DS_Store
+.idea/
+*.swp
+*.swo
+
+GITHUB_SSH_SETUP.md
