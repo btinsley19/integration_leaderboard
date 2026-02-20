@@ -310,6 +310,10 @@ try:
                 ],
                 width="stretch",
                 hide_index=True,
+                column_config={
+                    "Companies": {"alignment": "left"},
+                    "Total integrations": {"alignment": "left"},
+                },
             )
             df_csm = pd.DataFrame([{"CSM": r[0], "Total integrations": r[2]} for r in by_csm])
             chart_csm = alt.Chart(df_csm).mark_bar().encode(
