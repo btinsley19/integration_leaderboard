@@ -61,8 +61,15 @@ def get_worksheet() -> gspread.Worksheet:
         scopes=SHEETS_SCOPES,
     )
     client = gspread.authorize(creds)
-    sheet_id = st.secrets["GOOGLE_SHEETS_ID"]
-    worksheet_name = st.secrets.get("GOOGLE_SHEETS_WORKSHEET", "data")
+    # Prefer root-level GOOGLE_SHEETS_ID, but fall back to nested under gcp_service_account
+    sheet_id = st.secrets.get("GOOGLE_SHEETS_ID") or st.secrets["gcp_service_account"].get(
+        "GOOGLE_SHEETS_ID"
+    )
+    worksheet_name = (
+        st.secrets.get("GOOGLE_SHEETS_WORKSHEET")
+        or st.secrets["gcp_service_account"].get("GOOGLE_SHEETS_WORKSHEET")
+        or "data"
+    )
     worksheet = client.open_by_key(sheet_id).worksheet(worksheet_name)
     ensure_sheet_header(worksheet)
     return worksheet
@@ -227,7 +234,8 @@ def get_counts_by_csm(df: pd.DataFrame) -> list[tuple[str, int, int]]:
 st.set_page_config(page_title="Integrations Leaderboard", layout="wide")
 
 # Company color theme: buttons, accents, table, pills
-st.markdown(f"""
+st.markdown(
+    f"""
 <style>
     /* Primary button = green */
     .stButton > button[kind="primary"] {{
@@ -240,11 +248,29 @@ st.markdown(f"""
         color: #0a0a0a !important;
     }}
     /* Title accent */
-    .company-title-wrap {{ border-bottom: 4px solid {GREEN}; padding-bottom: 0.25rem; display: inline-block; margin-bottom: 0.5rem; }}
+    .company-title-wrap {{
+        border-bottom: 4px solid {GREEN};
+        padding-bottom: 0.25rem;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }}
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
-if "gcp_service_account" not in st.secrets or "GOOGLE_SHEETS_ID" not in st.secrets:
+# Support GOOGLE_SHEETS_ID either at the root level of secrets or nested under
+# [gcp_service_account] (some users put it there by mistake).
+has_sa = "gcp_service_account" in st.secrets
+root_sheets_id = st.secrets.get("GOOGLE_SHEETS_ID")
+nested_sheets_id = (
+    st.secrets["gcp_service_account"].get("GOOGLE_SHEETS_ID")
+    if has_sa and isinstance(st.secrets["gcp_service_account"], dict)
+    else None
+)
+effective_sheets_id = root_sheets_id or nested_sheets_id
+
+if not has_sa or not effective_sheets_id:
     st.error(
         "Missing Streamlit secrets for Google Sheets. You need:\n"
         "- `gcp_service_account` (service account JSON fields)\n"
