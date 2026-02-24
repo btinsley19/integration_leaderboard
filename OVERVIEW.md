@@ -18,7 +18,7 @@ Build an internal leaderboard/dashboard for Customer Success Managers (CSMs) to 
 ### Stack
 
 - **Python 3.x** with **Streamlit** for the UI (forms, tables, charts).
-- **SQLite** (stdlib) for persistence so data survives restarts and needs no extra setup.
+- **Google Sheets** for persistence so data survives Streamlit Cloud restarts/sleep.
 - **Single app**: One Streamlit app; no separate frontend or API.
 
 ### High-Level Architecture
@@ -31,7 +31,7 @@ Build an internal leaderboard/dashboard for Customer Success Managers (CSMs) to 
    - **Integrations catalog**: Names of all allowed integrations (used for dropdown + for aggregations).
 
 3. **App structure**  
-   - **Form page/section**: Fields for CSM name, company name, and multi-select for integrations (options from the backend list). Submit writes to SQLite.  
+   - **Form page/section**: Fields for CSM name, company name, and multi-select for integrations (options from the backend list). Submit writes to Google Sheets.  
    - **Overview section(s)**:
      - **By service**: For each integration, count how many times it appears across submissions (or how many companies have it). Display as table and/or bar chart.  
      - **By CSM**: For each CSM, count submissions (companies) and/or total integration instances. Display as table and/or bar chart (leaderboard).
@@ -47,7 +47,7 @@ Build an internal leaderboard/dashboard for Customer Success Managers (CSMs) to 
 | `requirements.txt` | Python dependencies (Streamlit, etc.). |
 | Virtual environment | Isolated env so packages are not installed globally. |
 | Integrations list | Backend list of integration names (file or module). |
-| SQLite schema + init | Table(s) for submissions and optional integrations catalog. |
+| Google Sheets backing store | Sheet used as the database (service account auth via Streamlit secrets). |
 | Streamlit app | Form + “By service” and “By CSM” overviews. |
 
 ### Success Criteria
@@ -55,7 +55,7 @@ Build an internal leaderboard/dashboard for Customer Success Managers (CSMs) to 
 - CSMs can submit their name, company, and completed integrations from a single form.
 - New integrations added to the backend list show up as form options without code changes to the UI.
 - Overview shows correct counts by integration (service) and by CSM.
-- No login required; data persisted in SQLite.
+- No login required; data persisted in Google Sheets.
 
 ---
 

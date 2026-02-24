@@ -2,3 +2,5 @@
 # Use with: pip install -r requirements.txt (inside the project venv)
 
 streamlit>=1.28.0
+gspread>=6.0.0
+google-auth>=2.0.0
