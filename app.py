@@ -260,17 +260,14 @@ st.markdown(
 )
 
 # Support GOOGLE_SHEETS_ID either at the root level of secrets or nested under
-# [gcp_service_account] (some users put it there by mistake).
+# [gcp_service_account] (in case it's been placed there).
 has_sa = "gcp_service_account" in st.secrets
 root_sheets_id = st.secrets.get("GOOGLE_SHEETS_ID")
-nested_sheets_id = (
-    st.secrets["gcp_service_account"].get("GOOGLE_SHEETS_ID")
-    if has_sa and isinstance(st.secrets["gcp_service_account"], dict)
-    else None
-)
+sa_section = st.secrets["gcp_service_account"] if has_sa else {}
+nested_sheets_id = sa_section.get("GOOGLE_SHEETS_ID") if hasattr(sa_section, "get") else None
 effective_sheets_id = root_sheets_id or nested_sheets_id
 
-if not has_sa or not effective_sheets_id:
+if (not has_sa) or (not effective_sheets_id):
     st.error(
         "Missing Streamlit secrets for Google Sheets. You need:\n"
         "- `gcp_service_account` (service account JSON fields)\n"
